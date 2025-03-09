@@ -11,11 +11,9 @@ public class EmployeeDataProcessorLegacy {
     public static void main(final String[] args) {
         System.out.println("Starting the application...");
         String fPath = parseArgs(args);
-        if (fPath == null) {
-            return;
+        if (fPath != null) {
+            procEmpData(fPath);
         }
-
-        procEmpData(fPath);
         System.out.println("Application finished.");
     }
 
