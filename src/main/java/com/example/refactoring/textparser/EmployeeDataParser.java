@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * 従業員データを解析して Employee オブジェクトに変換するユーティリティクラス
  * データはバリデーションチェック後、大文字に変換されてから Employee オブジェクトとしてマッピングされる
  */
+@UtilityClass
 class EmployeeDataParser {
 
     /**
