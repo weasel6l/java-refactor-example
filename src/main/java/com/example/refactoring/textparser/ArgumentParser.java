@@ -5,11 +5,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.experimental.UtilityClass;
 
@@ -19,6 +20,11 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 class ArgumentParser {
+
+    /**
+     * ログ取得用のLoggerインスタンス
+     */
+    private static final Logger LOGGER = LogManager.getLogger(ArgumentParser.class);
 
     /**
      * コマンドライン引数からファイルパスを取得するための短いオプション
@@ -41,26 +47,28 @@ class ArgumentParser {
     private static final String FILE_OPTION_DESCRIPTION = "Path to the file";
 
     /**
-     * コマンドライン引数を解析してファイルパスを取得する関数型インターフェース
+     * コマンドラインオプションの作成
+     * 
+     * @return コマンドラインオプションのオブジェクト
+     */
+    private static final Supplier<Options> createOptions = () -> new Options().addOption(Option.builder(FILE_OPTION)
+            .longOpt(FILE_OPTION_LONG)
+            .hasArg()
+            .desc(FILE_OPTION_DESCRIPTION)
+            .build());
+
+    /**
+     * コマンドライン引数を解析してファイルパスを取得するFunction
      * 引数が正しく解析されればファイルパスをOptionalで返し、解析に失敗した場合はOptional.empty()を返す
      *
      * @param args コマンドライン引数
      * @return 引数が正しく解析された場合はファイルパス、解析に失敗した場合は Optional.empty()
      */
-    private static final Function<String[], Optional<String>> parseArguments = args -> {
-        final Options options = new Options();
-        options.addOption(Option.builder(FILE_OPTION)
-                .longOpt(FILE_OPTION_LONG)
-                .hasArg()
-                .desc(FILE_OPTION_DESCRIPTION)
-                .build());
-
-        CommandLineParser commandLineParser = new DefaultParser();
+    private static final Function<String[], Optional<CommandLine>> parseArguments = args -> {
         try {
-            CommandLine commandLine = commandLineParser.parse(options, args);
-            return Optional.ofNullable(commandLine.getOptionValue(FILE_OPTION));
+            return Optional.of(new DefaultParser().parse(createOptions.get(), args));
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            LOGGER.error(e);
             return Optional.empty();
         }
     };
@@ -84,6 +92,8 @@ class ArgumentParser {
      * @return ファイルパス、引数不正時はOptional.empty()
      */
     public static Optional<String> parse(final String[] args) {
-        return parseArguments.apply(args).or(displayUsageError);
+        return parseArguments.apply(args)
+                .flatMap(command -> Optional.ofNullable(command.getOptionValue(FILE_OPTION)))
+                .or(displayUsageError);
     }
 }

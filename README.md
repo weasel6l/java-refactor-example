@@ -329,7 +329,6 @@ sequenceDiagram
 引数が無効な場合や、ファイル読み込みに失敗した場合は以下のエラーメッセージが表示される
 
 ```plaintext
-Unrecognized option: -xxxx
 Missing argument for option: f
 Usage: java EmployeeDataProcessor <file-path>
 ```
