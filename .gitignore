@@ -33,6 +33,7 @@ replay_pid*
 
 # VSCode
 .vscode/
+*.code-workspace
 
 # Maven target
 /target
